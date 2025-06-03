@@ -6,6 +6,8 @@ import LoadingSpinner from "../Shared/LoadingSpinner";
 import Loign from "../Log/loging/Login";
 import Register from "../Log/Register/Register";
 import Forget from "../Log/Forget/Forget";
+import RequestPads from "../Page/RequestPads/RequestPads";
+import Admin from "../Admin";
 
 // Define the wait function
 const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
@@ -14,49 +16,72 @@ const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 const Root = lazy(() => wait(3000).then(() => import("../Root")));
 
 const Routers = createBrowserRouter([
-    {
+  {
+    path: "/",
+    element: (
+      <Suspense fallback={<LoadingSpinner />}>
+        <Root />
+      </Suspense>
+    ),
+    errorElement: <ErrorPage />,
+    children: [
+      {
         path: "/",
         element: (
           <Suspense fallback={<LoadingSpinner />}>
-            <Root />
+            <Home />
           </Suspense>
         ),
-        errorElement: <ErrorPage />,
-        children: [
-            {
-                path: "/",
-                element: (
-                  <Suspense fallback={<LoadingSpinner />}>
-                    <Home />
-                  </Suspense>
-                ),
-            },
-            {
-                path: "/admin",
-                element: (
-                  <Suspense fallback={<LoadingSpinner />}>
-                    <Loign />
-                  </Suspense>
-                ),
-            },
-            {
-                path: "/register",
-                element: (
-                  <Suspense fallback={<LoadingSpinner />}>
-                    <Register />
-                  </Suspense>
-                ),
-            },
-            {
-                path: "/forgot-password",
-                element: (
-                  <Suspense fallback={<LoadingSpinner />}>
-                    <Forget />
-                  </Suspense>
-                ),
-            },
-        ],
-    },
+      },
+      {
+        path: "/request-pad",
+        element: (
+          <Suspense fallback={<LoadingSpinner />}>
+            <RequestPads />
+          </Suspense>
+        ),
+      },
+      
+      
+    ],
+  },
+
+  {
+    path: "/admin",
+    element: (
+      <Suspense fallback={<LoadingSpinner />}>
+        <Admin />
+      </Suspense>
+    ),
+    errorElement: <ErrorPage />,
+    children: [
+      {
+        path: "/admin",
+        element: (
+          <Suspense fallback={<LoadingSpinner />}>
+            <Loign />
+          </Suspense>
+        ),
+      },
+      {
+        path: "/admin/register",
+        element: (
+          <Suspense fallback={<LoadingSpinner />}>
+            <Register />
+          </Suspense>
+        ),
+      },
+      {
+        path: "/admin/forgot-password",
+        element: (
+          <Suspense fallback={<LoadingSpinner />}>
+            <Forget />
+          </Suspense>
+        ),
+      },
+    ]
+  }
+
 ]);
 
 export default Routers;
