@@ -1,5 +1,6 @@
 import { createContext, useEffect, useState } from "react";
-import { GoogleAuthProvider, createUserWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail, signInWithEmailAndPassword, signInWithPopup, signOut, updateProfile,} from "firebase/auth";
+import { GoogleAuthProvider, createUserWithEmailAndPassword, onAuthStateChanged, sendPasswordResetEmail, signInWithEmailAndPassword, signInWithPopup, signOut, updateProfile,sendEmailVerification} from "firebase/auth";
+
 import PropTypes from "prop-types";
 import { auth } from "../Firebase/Firebase";
 
@@ -33,7 +34,10 @@ const Context = ({ children }) => {
     .then((userCredential) => {
       const user = userCredential.user;
       // Update display name
-      return updateProfile(user, { displayName: name });
+      return updateProfile(user, { displayName: name }).then(() => {
+        // Send email verification
+        return sendEmailVerification(user);
+      });
     })
     .catch((error) => {
       console.error("Registration Error:", error.message);
@@ -43,13 +47,21 @@ const Context = ({ children }) => {
 };
 
 
+
   // Email and Password Login
   const loginUser = (email, password) => {
-    setLoading(true);
-    return signInWithEmailAndPassword(auth, email, password).finally(() =>
-      setLoading(false)
-    );
-  };
+  setLoading(true);
+  return signInWithEmailAndPassword(auth, email, password)
+    .then((userCredential) => {
+      const user = userCredential.user;
+      if (!user.emailVerified) {
+        throw new Error("Please verify your email before logging in.");
+      }
+      return userCredential;
+    })
+    .finally(() => setLoading(false));
+};
+
 
   // Forgot password
   const forgotPassword = (email) => {
