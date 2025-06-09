@@ -8,6 +8,8 @@ import Register from "../Log/Register/Register";
 import Forget from "../Log/Forget/Forget";
 import RequestPads from "../Page/RequestPads/RequestPads";
 import Admin from "../Admin";
+import Learn from "../Page/Learn/Learn";
+import Volunteer from "../Page/Volunteer/Volunteer";
 
 // Define the wait function
 const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
@@ -38,6 +40,22 @@ const Routers = createBrowserRouter([
         element: (
           <Suspense fallback={<LoadingSpinner />}>
             <RequestPads />
+          </Suspense>
+        ),
+      },
+      {
+        path: "/learn",
+        element: (
+          <Suspense fallback={<LoadingSpinner />}>
+            <Learn />
+          </Suspense>
+        ),
+      },
+      {
+        path: "/volunteer",
+        element: (
+          <Suspense fallback={<LoadingSpinner />}>
+            <Volunteer />
           </Suspense>
         ),
       },

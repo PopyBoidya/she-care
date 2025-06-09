@@ -28,19 +28,20 @@ const Context = ({ children }) => {
 
   // Name, Email, and Password Register
   const createUser = (name, email, password) => {
-    setLoading(true);
-    return createUserWithEmailAndPassword(auth, email, password)
-      .then((userCredential) => {
-        const user = userCredential.user;
-        // Update display name
-        return updateProfile(user, { displayName: name });
-      })
-      .catch((error) => {
-        console.error("Registration Error:", error.message);
-        throw error;
-      })
-      .finally(() => setLoading(false));
-  };
+  setLoading(true);
+  return createUserWithEmailAndPassword(auth, email, password)
+    .then((userCredential) => {
+      const user = userCredential.user;
+      // Update display name
+      return updateProfile(user, { displayName: name });
+    })
+    .catch((error) => {
+      console.error("Registration Error:", error.message);
+      throw error;
+    })
+    .finally(() => setLoading(false));
+};
+
 
   // Email and Password Login
   const loginUser = (email, password) => {

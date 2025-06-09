@@ -1,19 +1,17 @@
-// firebase.js
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth"; // Import Authentication module
+import { getAuth } from "firebase/auth";
 
-// Your web app's Firebase configuration
 const firebaseConfig = {
- apiKey: "AIzaSyChi9lCk663EMf6reFPPkp55uPOJLraQG8",
-  authDomain: "shecare-45bed.firebaseapp.com",
-  projectId: "shecare-45bed",
-  storageBucket: "shecare-45bed.firebasestorage.app",
-  messagingSenderId: "298230266460",
-  appId: "1:298230266460:web:44a587e0425cbf14510499",
-  measurementId: "G-P8MWB4MC0T"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const auth = getAuth(app); // Initialize Authentication
-export { app, auth }; // Export both app and auth
+const auth = getAuth(app);
+
+export { app, auth };

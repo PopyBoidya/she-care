@@ -10,7 +10,6 @@ export default function Navbar() {
   const navItems = [
     { name: "Home", to: "/" },
     { name: "Request Pad", to: "/request-pad" },
-    { name: "Pad Locations", to: "/pad-locations" },
     { name: "Learn", to: "/learn" },
   ]
 
