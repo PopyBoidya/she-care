@@ -13,84 +13,106 @@ const VolunteerForm = () => {
 
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  const formDataRaw = new FormData(e.target);
-  const fullName = formDataRaw.get('fullName');
-  const email = formDataRaw.get('email');
-  const password = formDataRaw.get('password');
-  const phone = formDataRaw.get('phone');
-  const studentId = formDataRaw.get('studentId');
-  const department = formDataRaw.get('department');
-  const academicYear = formDataRaw.get('academicYear');
-  const availability = formDataRaw.getAll('availability');
-  const prevExperience = formDataRaw.get('prevExperience');
-  const motivation = formDataRaw.get('motivation');
-  const termsAgreed = formDataRaw.get('termsAgreed');
+    const formDataRaw = new FormData(e.target);
+    const fullName = formDataRaw.get('fullName');
+    const email = formDataRaw.get('email');
+    const password = formDataRaw.get('password');
+    const phone = formDataRaw.get('phone');
+    const studentId = formDataRaw.get('studentId');
+    const department = formDataRaw.get('department');
+    const academicYear = formDataRaw.get('academicYear');
+    const availability = formDataRaw.getAll('availability');
+    const prevExperience = formDataRaw.get('prevExperience');
+    const motivation = formDataRaw.get('motivation');
+    const termsAgreed = formDataRaw.get('termsAgreed');
 
-  if (!imageFile) {
-    Swal.fire("Please select an image");
-    return;
-  }
+    if (!imageFile) {
+      Swal.fire("Please select an image");
+      return;
+    }
 
-  const imageFormData = new FormData();
-  imageFormData.append("image", imageFile);
+    const imageFormData = new FormData();
+    imageFormData.append("image", imageFile);
 
-  try {
-    // Upload image to imgbb
-    const res = await axios.post(
-      `https://api.imgbb.com/1/upload?key=${import.meta.env.VITE_IMGBB_API_KEY}`,
-      imageFormData
-    );
-    const imageUrl = res.data.data.url;
+    try {
+      // Upload image to imgbb
+      const res = await axios.post(
+        `https://api.imgbb.com/1/upload?key=${import.meta.env.VITE_IMGBB_API_KEY}`,
+        imageFormData
+      );
+      const imageUrl = res.data.data.url;
 
-    // Create Firebase user and update displayName
-    await createUser(fullName, email, password);
+      // Create Firebase user and update displayName
+      await createUser(fullName, email, password);
 
-    const data = {
-      fullName,
-      email,
-      password,
-      phone,
-      studentId,
-      department,
-      academicYear,
-      availability,
-      prevExperience,
-      motivation,
-      termsAgreed,
-      imageUrl,
-    };
-    console.log(data)
+      const data = {
+        fullName,
+        email,
+        password,
+        phone,
+        studentId,
+        department,
+        academicYear,
+        availability,
+        prevExperience,
+        motivation,
+        termsAgreed,
+        imageUrl,
+      };
+      console.log(data)
 
-    // Send volunteer data to backend
-    // await axios.post("https://your-backend-api.com/volunteers", data);
+      // Send volunteer data to backend
+      // await axios.post("https://your-backend-api.com/volunteers", data);
 
-    // Show success alert
-    Swal.fire({
-      title: 'Success!',
-      text: 'You have successfully registered as a volunteer!',
-      icon: 'success',
-      confirmButtonText: 'OK',
-    }).then(() => {
-      // Log out user after clicking OK
-      LogOut();
-    });
 
-    // Reset form
-    e.target.reset();
-    setImageFile(null);
 
-  } catch (err) {
-    console.error("Error during form submission:", err);
-    Swal.fire({
-      title: 'Error!',
-      text: 'Something went wrong. Please try again.',
-      icon: 'error',
-      confirmButtonText: 'OK',
-    });
-  }
-};
+      const domain = email.split('@')[1];
+      let inboxLink = `https://${domain}`;
+      if (domain.includes('gmail')) inboxLink = 'https://mail.google.com/';
+      else if (domain.includes('yahoo')) inboxLink = 'https://mail.yahoo.com/';
+      // etc...
+
+      // Show success alert
+      Swal.fire({
+        title: 'Success!',
+        html: `
+    A verification email has been sent to <b>${email}</b>.<br/><br/>
+    Please check your inbox and click the verification link to complete your registration.
+  `,
+        icon: 'success',
+        showCancelButton: true,
+        confirmButtonText: 'OK',
+        cancelButtonText: 'Go to Inbox',
+        reverseButtons: true,
+        customClass: {
+          cancelButton: 'swal2-inbox-button'
+        }
+      }).then((result) => {
+        // Logout regardless of which button was clicked
+        LogOut();
+
+        if (result.dismiss === Swal.DismissReason.cancel) {
+          // Redirect to inbox after logging out
+          window.open(inboxLink, '_blank');
+        }
+      });
+
+      // Reset form
+      e.target.reset();
+      setImageFile(null);
+
+    } catch (err) {
+      console.error("Error during form submission:", err);
+      Swal.fire({
+        title: 'Error!',
+        text: 'Something went wrong. Please try again.',
+        icon: 'error',
+        confirmButtonText: 'OK',
+      });
+    }
+  };
 
 
 
