@@ -1,15 +1,41 @@
-import axios from "axios";
 import { Eye, EyeOff } from "lucide-react"; // Optional: Use any icon library
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useAuthContext from "../../Hooks/useAuthContext";
 import Swal from "sweetalert2";
+import { Link } from "react-router-dom";
+import useAxios from "../../Hooks/useAxios";
 
 const VolunteerForm = () => {
 
   const [showPassword, setShowPassword] = useState(false);
   const [imageFile, setImageFile] = useState(null);
   const { user, createUser, LogOut } = useAuthContext();
+  const axios = useAxios();
   console.log("user in volunteer form", user);
+
+  const [departments, setDepartments] = useState([]);
+  const [years, setYears] = useState([]);
+  const [availability, setAvailability] = useState([]);
+
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const [deptRes, yearRes, availRes] = await Promise.all([
+        axios.get("/department"),
+        axios.get("/year"),
+        axios.get("/availability"),
+
+      ]);
+
+      setDepartments(deptRes.data);
+      setYears(yearRes.data);
+      setAvailability(availRes.data);
+
+    };
+
+    fetchData();
+  }, [axios]);
+
 
 
   const handleSubmit = async (e) => {
@@ -27,6 +53,7 @@ const VolunteerForm = () => {
     const prevExperience = formDataRaw.get('prevExperience');
     const motivation = formDataRaw.get('motivation');
     const termsAgreed = formDataRaw.get('termsAgreed');
+    const userType = "volunteer";
 
     if (!imageFile) {
       Swal.fire("Please select an image");
@@ -47,6 +74,7 @@ const VolunteerForm = () => {
       // Create Firebase user and update displayName
       await createUser(fullName, email, password);
 
+
       const data = {
         fullName,
         email,
@@ -60,11 +88,12 @@ const VolunteerForm = () => {
         motivation,
         termsAgreed,
         imageUrl,
+        userType
       };
       console.log(data)
 
       // Send volunteer data to backend
-      // await axios.post("https://your-backend-api.com/volunteers", data);
+      await axios.post("/userdata", data);
 
 
 
@@ -225,9 +254,12 @@ const VolunteerForm = () => {
               className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-pink-500"
             >
               <option value="">Select department</option>
-              <option value="arts">Arts</option>
-              <option value="science">Science</option>
-              <option value="engineering">Engineering</option>
+              {departments.map((dept) => (
+                // Assuming your department documents have 'name' field
+                <option key={dept._id} value={dept.name}>
+                  {dept.name}
+                </option>
+              ))}
             </select>
 
             <select
@@ -236,39 +268,40 @@ const VolunteerForm = () => {
               className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-pink-500"
             >
               <option value="">Select year</option>
-              <option value="1">1st Year</option>
-              <option value="2">2nd Year</option>
-              <option value="3">3rd Year</option>
-              <option value="4">4th Year</option>
+              {years.map((year) => (
+                // Assuming your year documents have 'year' field
+                <option key={year._id} value={year.year}>
+                  {year.year} {year.year.toString().endsWith("1") ? "st" : year.year.toString().endsWith("2") ? "nd" : year.year.toString().endsWith("3") ? "rd" : "th"} Year
+                </option>
+              ))}
             </select>
           </div>
 
-          {/* Availability */}
           <div>
-            <h4 className="font-semibold mb-2 text-gray-700">Availability (Select all that apply) *</h4>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
-              {[
-                "Monday Morning (9 AM - 12 PM)",
-                "Monday Afternoon (12 PM - 5 PM)",
-                "Tuesday Morning (9 AM - 12 PM)",
-                "Tuesday Afternoon (12 PM - 5 PM)",
-                "Wednesday Morning (9 AM - 12 PM)",
-                "Wednesday Afternoon (12 PM - 5 PM)",
-                "Friday Morning (9 AM - 12 PM)",
-                "Friday Afternoon (12 PM - 5 PM)",
-                "Weekend (Flexible)",
-              ].map((slot, i) => (
-                <label key={i} className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    name="availability"
-                    value={slot}
-                    className="accent-pink-600"
-                  />
-                  {slot}
-                </label>
-              ))}
-            </div>
+            <h4 className="font-semibold mb-4 text-gray-700 text-lg">
+              Availability (Select all that apply) *
+            </h4>
+
+            {availability.length === 0 ? (
+              <p className="text-sm text-red-500">No availability data found.</p>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-gray-800 text-sm">
+                {availability.map((availItem) => (
+                  <label
+                    key={availItem._id}
+                    className="flex items-center gap-3 cursor-pointer hover:text-pink-600 transition-colors"
+                  >
+                    <input
+                      type="checkbox"
+                      name="availability"
+                      value={availItem.availability}
+                      className="accent-pink-600 w-5 h-5"
+                    />
+                    <span>{availItem.availability}</span>
+                  </label>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Experience */}
@@ -305,7 +338,8 @@ const VolunteerForm = () => {
             className="bg-pink-600 hover:bg-pink-700 text-white font-semibold px-6 py-3 rounded-lg shadow-md transition"
           >
             Register as a Volunteer
-          </button>
+          </button><br /><br />
+          <Link to="/volunteer/login" className="text-pink-500">Sign as a Volunteer </Link>
         </form>
 
       </div>

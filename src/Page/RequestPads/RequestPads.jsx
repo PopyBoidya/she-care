@@ -1,30 +1,28 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Swal from 'sweetalert2';
+import useAxios from '../../Hooks/useAxios';
 
 const RequestPads = () => {
-  const buildingAndFloorData = {
-    buildings: [
-      {
-        name: "Building A",
-        floors: ["Ground Floor", "1st Floor", "2nd Floor"]
-      },
-      {
-        name: "Building B",
-        floors: ["Ground Floor", "1st Floor"]
-      },
-      {
-        name: "Building C",
-        floors: ["Ground Floor", "1st Floor", "2nd Floor", "3rd Floor"]
-      }
-    ]
-  };
-
+  const [buildings, setBuildings] = useState([]);
   const [floors, setFloors] = useState([]);
+  const [selectedBuilding, setSelectedBuilding] = useState('');
+  console.log("RequestPads component loaded" , selectedBuilding);
+  const axios = useAxios();
 
-  // Controlled input na korar jonno handleChange remove kora hobe except building select er jonno floor update korar jonno
+  // 🚀 Fetch building list
+  useEffect(() => {
+    axios.get('/building')
+      .then(res => setBuildings(res.data))
+      .catch(err => console.error('Failed to load buildings', err));
+  }, [axios]);
+
+  // 🚀 Fetch floor list when building changes
   const handleBuildingChange = (e) => {
-    const selectedBuilding = buildingAndFloorData.buildings.find(b => b.name === e.target.value);
-    setFloors(selectedBuilding ? selectedBuilding.floors : []);
+    const selected = e.target.value;
+    setSelectedBuilding(selected);
+    axios.get(`/floor?building=${encodeURIComponent(selected)}`)
+      .then(res => setFloors(res.data))
+      .catch(err => console.error('Failed to load floors', err));
   };
 
   const handleSubmit = (event) => {
@@ -40,18 +38,25 @@ const RequestPads = () => {
       yourNumber: formData.get('yourNumber'),
     };
 
-    console.log("Form submitted with data:", requestData);
-
-    Swal.fire({
-      title: "Request Sent!",
-      text: "Your anonymous request has been submitted successfully.",
-      icon: "success",
-      confirmButtonColor: "#dc3e7b"
-    });
-
-    // Form reset korar jonno:
-    event.target.reset();
-    setFloors([]);
+    axios.post('/pad-request', requestData)
+      .then(() => {
+        Swal.fire({
+          title: "Request Sent!",
+          text: "Your anonymous request has been submitted successfully.",
+          icon: "success",
+          confirmButtonColor: "#dc3e7b"
+        });
+        event.target.reset();
+        setFloors([]);
+      })
+      .catch(err => {
+        Swal.fire({
+          title: "Error",
+          text: "Failed to submit request",
+          icon: "error"
+        });
+        console.error(err);
+      });
   };
 
   return (
@@ -67,67 +72,53 @@ const RequestPads = () => {
         <div className="w-full max-w-xl">
           <div className="max-w-xl mx-auto p-6 bg-white rounded-lg shadow-md">
             <h2 className="text-2xl font-bold mb-4">Anonymous Pad Request</h2>
-            <p className="text-gray-600 mb-6">
-              Fill out the form below to request pads. No personal information required.
-            </p>
-
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Building */}
+              {/* Building & Floor */}
               <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
                 <div>
-                  <label className="block font-medium">
-                    Building <span className="text-red-500">*</span>
-                  </label>
+                  <label className="block font-medium">Building <span className="text-red-500">*</span></label>
                   <select
                     name="building"
                     required
-                    className="w-full mt-1 p-2 border rounded"
                     onChange={handleBuildingChange}
                     defaultValue=""
+                    className="w-full mt-1 p-2 border rounded"
                   >
                     <option value="" disabled>Select building</option>
-                    {buildingAndFloorData.buildings.map((building, idx) => (
-                      <option key={idx} value={building.name}>
-                        {building.name}
-                      </option>
+                    {buildings.map((b) => (
+                      <option key={b._id} value={b.name}>{b.name}</option>
                     ))}
                   </select>
                 </div>
 
-                {/* Floor */}
                 <div>
-                  <label className="block font-medium">
-                    Floor <span className="text-red-500">*</span>
-                  </label>
+                  <label className="block font-medium">Floor <span className="text-red-500">*</span></label>
                   <select
                     name="floor"
                     required
-                    className="w-full mt-1 p-2 border rounded"
                     disabled={floors.length === 0}
+                    className="w-full mt-1 p-2 border rounded"
                     defaultValue=""
                   >
                     <option value="" disabled>Select floor</option>
-                    {floors.map((floor, idx) => (
-                      <option key={idx} value={floor}>
-                        {floor}
-                      </option>
+                    {floors.map((f) => (
+                      <option key={f._id} value={f.name}>{f.name}</option>
                     ))}
                   </select>
                 </div>
               </div>
 
-              {/* Specific Location */}
+              {/* Other Fields */}
               <div>
-                <label className="block font-medium">Specific Location (e.g. near room number)</label>
+                <label className="block font-medium">Specific Location</label>
                 <input
                   type="text"
                   name="specificLocation"
-                  placeholder="e.g., Near washroom, Room 201, Main entrance"
+                  placeholder="e.g., Near washroom, Room 201"
                   className="w-full mt-1 p-2 border rounded"
                 />
               </div>
 
-              {/* Your Number */}
               <div>
                 <label className="block font-medium">Your Number</label>
                 <input
@@ -139,25 +130,16 @@ const RequestPads = () => {
                 />
               </div>
 
-              {/* Urgency Level */}
               <div>
-                <label className="block font-medium">
-                  Urgency Level <span className="text-red-500">*</span>
-                </label>
-                <select
-                  name="urgencyLevel"
-                  required
-                  className="w-full mt-1 p-2 border rounded"
-                  defaultValue=""
-                >
-                  <option value="" disabled>How urgent is your request?</option>
+                <label className="block font-medium">Urgency Level <span className="text-red-500">*</span></label>
+                <select name="urgencyLevel" required className="w-full mt-1 p-2 border rounded" defaultValue="">
+                  <option value="" disabled>Select urgency</option>
                   <option value="🚨 Emergency (Immediate)">🚨 Emergency (Immediate)</option>
                   <option value="⚡ Urgent (Within 5 mins)">⚡ Urgent (Within 5 mins)</option>
                   <option value="📅 Normal (Within 15 mins)">📅 Normal (Within 15 mins)</option>
                 </select>
               </div>
 
-              {/* Additional Info */}
               <div>
                 <label className="block font-medium">Additional Information</label>
                 <textarea
@@ -166,12 +148,6 @@ const RequestPads = () => {
                   placeholder="Any additional details..."
                   className="w-full mt-1 p-2 border rounded"
                 />
-              </div>
-
-              {/* Privacy Notice */}
-              <div className="text-sm text-gray-500">
-                <strong>Privacy Notice:</strong> This request is completely anonymous. We only collect
-                location information to help volunteers assist you effectively. No personal data is stored or shared.
               </div>
 
               <button

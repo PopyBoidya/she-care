@@ -57,9 +57,9 @@ export default function Navbar() {
               </Link>
             ))}
             <Link
-              to="/volunteer"
+              to="/apply-volunteer"
               className={`px-4 py-2 rounded-md text-white font-medium font-inter transition-all ${
-                currentPath === "/volunteer"
+                currentPath === "/apply-volunteer"
                   ? "bg-[#db2777] hover:bg-[#c02669]"
                   : "bg-[#db2777]/80 hover:bg-[#db2777]"
               }`}
@@ -95,10 +95,10 @@ export default function Navbar() {
               </Link>
             ))}
             <Link
-              to="/volunteer"
+              to="/apply-volunteer"
               onClick={() => setIsMenuOpen(false)}
               className={`block w-fit px-4 py-2 rounded-md text-white font-medium font-inter ${
-                currentPath === "/volunteer"
+                currentPath === "/apply-volunteer"
                   ? "bg-[#db2777]"
                   : "bg-[#db2777]/90 hover:bg-[#db2777]"
               }`}

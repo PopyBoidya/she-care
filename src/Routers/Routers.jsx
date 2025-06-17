@@ -4,12 +4,10 @@ import ErrorPage from "../Error/ErrorPage";
 import Home from "../Home/Home";
 import LoadingSpinner from "../Shared/LoadingSpinner";
 import Loign from "../Log/loging/Login";
-import Register from "../Log/Register/Register";
-import Forget from "../Log/Forget/Forget";
 import RequestPads from "../Page/RequestPads/RequestPads";
-import Admin from "../Admin";
 import Learn from "../Page/Learn/Learn";
 import Volunteer from "../Page/Volunteer/Volunteer";
+import VolunteerPortal from "../VolunteerPortal";
 
 // Define the wait function
 const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
@@ -52,7 +50,7 @@ const Routers = createBrowserRouter([
         ),
       },
       {
-        path: "/volunteer",
+        path: "/apply-volunteer",
         element: (
           <Suspense fallback={<LoadingSpinner />}>
             <Volunteer />
@@ -65,35 +63,19 @@ const Routers = createBrowserRouter([
   },
 
   {
-    path: "/admin",
+    path: "/volunteer/login",
     element: (
       <Suspense fallback={<LoadingSpinner />}>
-        <Admin />
+        <VolunteerPortal />
       </Suspense>
     ),
     errorElement: <ErrorPage />,
     children: [
       {
-        path: "/admin",
+        path: "/volunteer/login",
         element: (
           <Suspense fallback={<LoadingSpinner />}>
             <Loign />
-          </Suspense>
-        ),
-      },
-      {
-        path: "/admin/register",
-        element: (
-          <Suspense fallback={<LoadingSpinner />}>
-            <Register />
-          </Suspense>
-        ),
-      },
-      {
-        path: "/admin/forgot-password",
-        element: (
-          <Suspense fallback={<LoadingSpinner />}>
-            <Forget />
           </Suspense>
         ),
       },
