@@ -96,7 +96,7 @@ const Context = ({ children }) => {
     return sendPasswordResetEmail(auth, email);
   };
 
-  const LogOut = () => {
+  const LogOutUser = () => {
     setLoading(true);
     return signOut(auth)
       .then(() => {
@@ -113,7 +113,7 @@ const Context = ({ children }) => {
     createUser,
     loginUser,
     forgotPassword,
-    LogOut,
+    LogOutUser,
     fcmToken, // optional: you can use it elsewhere
   };
 

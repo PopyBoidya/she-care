@@ -93,7 +93,7 @@ const VolunteerForm = () => {
       console.log(data)
 
       // Send volunteer data to backend
-      await axios.post("/userdata", data);
+      await axios.post("/volunteers", data);
 
 
 
@@ -339,7 +339,7 @@ const VolunteerForm = () => {
           >
             Register as a Volunteer
           </button><br /><br />
-          <Link to="/volunteer/login" className="text-pink-500">Sign as a Volunteer </Link>
+          <Link to="/login" className="text-pink-500">Sign as a Volunteer </Link>
         </form>
 
       </div>

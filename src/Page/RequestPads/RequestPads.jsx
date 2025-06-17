@@ -35,7 +35,9 @@ const RequestPads = () => {
       specificLocation: formData.get('specificLocation'),
       urgencyLevel: formData.get('urgencyLevel'),
       additionalInfo: formData.get('additionalInfo'),
-      yourNumber: formData.get('yourNumber'),
+      Number: formData.get('yourNumber'),
+      requestTime: new Date().toISOString(),
+      status: "pending"
     };
 
     axios.post('/pad-request', requestData)

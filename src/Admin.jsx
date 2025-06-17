@@ -1,17 +1,18 @@
-import Navbar from './Shared/Navbar/Navbar';
-import Footer from './Shared/Footer/Footer';
 import { Outlet } from "react-router-dom";
+import Sidebar from "./Shared/Sidbar/Sidbar";
 
 const Admin = () => {
-    return (
-        <div className="min-h-screen flex flex-col">
-      <Navbar />
-      <div className="flex-1">
+  return (
+    <div>
+      {/* Sidebar is fixed */}
+      <Sidebar />
+
+      {/* Main content area with margin-left to prevent overlap */}
+      <div className="ml-64 h-screen overflow-y-auto p-6 bg-gray-100">
         <Outlet />
       </div>
-      <Footer />
     </div>
-    );
+  );
 };
 
 export default Admin;
